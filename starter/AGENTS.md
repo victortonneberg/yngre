@@ -45,15 +45,63 @@ eldre. Alle versjoner er låst uten `^` og `~`, med vilje.
 - Legg logikk som kan testes uten å starte en server i egne funksjoner. Da kan
   dere teste den med Vitest på millisekunder.
 
+## Referansearkitektur
+
+Læreren sin ferdige løsning (`tasks`) ligger i `../../tasks`. Den er fasit for
+lag og mønstre. En kort oppsummering med filstier står i
+[`docs/arkitektur.md`](docs/arkitektur.md). Les den før du skriver kode.
+
+- Kopier og tilpass mønstre inn i **vårt** repo. Importer aldri fra
+  `../../tasks`, og endre aldri noe der.
+- Oppgi hvilken referansefil du fulgte (f.eks. «følger
+  `src/features/tasks/task-service.ts`»). Mangler mønsteret i referansen,
+  spør i stedet for å gjette.
+- Der referansekoden og `docs/arkitektur.html` i referansen er uenige, er det
+  koden som gjelder. HTML-en er eldre.
+
+## Filstruktur
+
+Samme konvensjon som referansen: én mappe per ressurs under `src/features/`.
+Innlogging er utsatt til vi har lært det. Da lages `src/features/auth/`.
+
+| Vår fil | Følger referansefil |
+| --- | --- |
+| `src/db/schema/question-schema.ts`, `answer-schema.ts`, `category-schema.ts` | `src/db/schema/task-schema.ts` |
+| `src/db/schema/index.ts`, `src/db/relations.ts` (utvides) | samme filer |
+| `src/features/questions/question-{routes,controller,service,repository,mapper,schema,api}.ts` | tilsvarende `task-*.ts` |
+| `src/features/questions/actions.ts` | `actions.ts` |
+| `src/features/questions/utils/validate-question.ts` | `utils/validate-task.ts` |
+| `src/features/questions/utils/validate-list-params.ts`, `parse-params.ts` | samme filer (søk er `?q=` på listeruta) |
+| `src/features/questions/pages/QuestionsPage.tsx`, `QuestionPage.tsx` | `pages/TasksPage.tsx` |
+| `src/features/questions/components/QuestionList.tsx`, `QuestionItem.tsx`, `QuestionFilter.tsx`, `CreateQuestionForm.tsx` | `components/Task*.tsx`, `CreateTaskForm.tsx` |
+| `src/features/answers/answer-{routes,controller,service,repository,mapper,schema}.ts` | tilsvarende `task-*.ts` |
+| `src/features/categories/category-{routes,controller,service,repository,mapper,schema}.ts` | tilsvarende `task-*.ts` |
+| `__tests__/question-mapper.test.ts`, `question-service.test.ts`, `QuestionFilter.test.tsx` | `task-mapper.test.ts`, `task-service.test.ts`, `TaskFilter.test.tsx` |
+| `src/test/cloudflare-workers.ts` + alias i `vitest.config.ts` | samme filer |
+
+- API-stier: `/api/v1/<ressurser>` og `/api/v1/<ressurser>/:id`. Svar ligger under
+  `/api/v1/questions/:id/answers` (liste og opprett) og `/api/v1/answers/:id`.
+- Feil- og svarformen, kodene og lagdelingen er som i referansen
+  (`{ ok, data }` / `{ ok: false, error: { code, message, fieldErrors } }`).
+  Ikke «forbedre» dem. Kopier mønsteret, men ikke svakhetene (`as` på
+  fetch-svar skal valideres med Zod).
+- Answers-servicen spør questions-servicen, ikke dens repository.
+
 ## Kommandoer
 
+Vi bruker **pnpm**. Ikke bruk npm, og ikke lag `package-lock.json`.
+
 ```bash
-npm run dev        # utviklingsserver, port 5173
-npm run lint       # tsc --noEmit
-npm test           # vitest
-npm run generate   # etter hver endring i wrangler.jsonc
+pnpm dev            # utviklingsserver, port 5173
+pnpm lint           # tsc --noEmit
+pnpm test           # vitest
+pnpm generate       # etter hver endring i wrangler.jsonc
+pnpm migrate:new    # lag migrasjon etter endring i schema
+pnpm migrate:dev    # kjør migrasjoner lokalt
+pnpm seed           # testdata
+pnpm test:e2e       # Playwright
 ```
 
-Prosjektet virker med både npm og pnpm. `allowScripts` i `package.json` er
-npm-siden av `allowBuilds` i `pnpm-workspace.yaml`: begge sier hvilke pakker som
-får kjøre installasjonsscript. Uten dem starter ikke utviklingsserveren.
+`allowBuilds` i `pnpm-workspace.yaml` (og `allowScripts` i `package.json`) sier
+hvilke pakker som får kjøre installasjonsscript. Uten dem starter ikke
+utviklingsserveren.
