@@ -9,5 +9,3 @@ export const categories = sqliteTable("categories", {
 });
 
 export type Category = typeof categories.$inferSelect;
-export type CreateCategory = typeof categories.$inferInsert;
-export type UpdateCategory = Partial<CreateCategory>;
