@@ -4,20 +4,45 @@
 // det var i 0.x. `fields`/`references` heter nå `from`/`to`.
 //
 // Det er dette objektet som gjør at
-// `db.query.tasks.findFirst({ with: { user: true } })` virker. Det sendes til
-// `drizzle(..., { relations })` i ./index.ts.
+// `db.query.questions.findFirst({ with: { user: true } })` virker. Det sendes
+// til `drizzle(..., { relations })` i ./index.ts.
 import { defineRelations } from "drizzle-orm";
 import * as schema from "./schema";
 
 export const relations = defineRelations(schema, (r) => ({
   users: {
-    // En bruker har mange oppgaver.
-    tasks: r.many.tasks({ from: r.users.id, to: r.tasks.userId }),
+    // En bruker har mange spørsmål, og en admin har mange svar.
+    questions: r.many.questions({ from: r.users.id, to: r.questions.userId }),
+    answers: r.many.answers({ from: r.users.id, to: r.answers.adminId }),
   },
-  tasks: {
-    // En oppgave har én bruker. `optional: false` gjør den ikke-nullbar i typen.
+  categories: {
+    questions: r.many.questions({
+      from: r.categories.id,
+      to: r.questions.categoryId,
+    }),
+  },
+  questions: {
+    // `optional: false` gjør relasjonen ikke-nullbar i typen.
     user: r.one.users({
-      from: r.tasks.userId,
+      from: r.questions.userId,
+      to: r.users.id,
+      optional: false,
+    }),
+    category: r.one.categories({
+      from: r.questions.categoryId,
+      to: r.categories.id,
+      optional: false,
+    }),
+    answers: r.many.answers({ from: r.questions.id, to: r.answers.questionId }),
+  },
+  answers: {
+    question: r.one.questions({
+      from: r.answers.questionId,
+      to: r.questions.id,
+      optional: false,
+    }),
+    admin: r.one.users({
+      from: r.answers.adminId,
       to: r.users.id,
       optional: false,
     }),

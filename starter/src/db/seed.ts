@@ -6,36 +6,47 @@
 // startet. Da slipper dere å lure på om feilen ligger i dataene.
 import { defineScript } from "rwsdk/worker";
 import { drizzle } from "drizzle-orm/d1";
-import { users, tasks } from "./schema";
+import { users, categories, questions, answers } from "./schema";
 
 export const seedData = async (env: Env) => {
   const db = drizzle(env.DB);
 
-  // Tøm først, så seed kan kjøres om igjen uten å doble alt.
-  await db.delete(tasks);
+  // Tøm først, så seed kan kjøres om igjen uten å doble alt. Barn før foreldre.
+  await db.delete(answers);
+  await db.delete(questions);
+  await db.delete(categories);
   await db.delete(users);
 
-  // Brukerne må inn før oppgavene: fremmednøkkelen krever at brukeren finnes.
+  // Foreldrene må inn før barna: fremmednøkkelen krever at raden finnes.
   // Databasen nekter hvis dere tar rekkefølgen feil, og det er en god ting.
-  const [user] = await db
+  const [user, admin] = await db
     .insert(users)
-    .values({ name: "Test Testesen", email: "test@example.com" })
+    .values([
+      { name: "Test Testesen", email: "test@example.com", role: "user" },
+      { name: "Admin Adminsen", email: "admin@example.com", role: "admin" },
+    ])
     .returning();
 
-  await db.insert(tasks).values([
-    {
-      title: "Lese leksjonen før timen",
-      completed: true,
+  const [category] = await db
+    .insert(categories)
+    .values([{ name: "Studier" }, { name: "Økonomi" }, { name: "Bolig" }])
+    .returning();
+
+  const [question] = await db
+    .insert(questions)
+    .values({
+      title: "Hvordan søker jeg om studielån?",
+      content: "Hvor og når må jeg søke for å få lån til høsten?",
+      categoryId: category.id,
       userId: user.id,
-      dueDate: new Date(Date.now() - 86_400_000),
-    },
-    {
-      title: "Sette opp prosjektet",
-      completed: false,
-      userId: user.id,
-      dueDate: new Date(Date.now() + 86_400_000),
-    },
-  ]);
+    })
+    .returning();
+
+  await db.insert(answers).values({
+    questionId: question.id,
+    adminId: admin.id,
+    content: "Du søker i Lånekassen innen 15. november.",
+  });
 
   console.log("Seeding ferdig");
 };
