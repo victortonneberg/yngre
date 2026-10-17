@@ -15,22 +15,11 @@ export const relations = defineRelations(schema, (r) => ({
     questions: r.many.questions({ from: r.users.id, to: r.questions.userId }),
     answers: r.many.answers({ from: r.users.id, to: r.answers.adminId }),
   },
-  categories: {
-    questions: r.many.questions({
-      from: r.categories.id,
-      to: r.questions.categoryId,
-    }),
-  },
   questions: {
     // `optional: false` gjør relasjonen ikke-nullbar i typen.
     user: r.one.users({
       from: r.questions.userId,
       to: r.users.id,
-      optional: false,
-    }),
-    category: r.one.categories({
-      from: r.questions.categoryId,
-      to: r.categories.id,
       optional: false,
     }),
     answers: r.many.answers({ from: r.questions.id, to: r.answers.questionId }),

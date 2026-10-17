@@ -1,12 +1,10 @@
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./user-schema";
-import { categories } from "./category-schema";
 import { createId } from "@/lib/id";
 
 /**
  * onDelete:
- *   userId       cascade: slettes brukeren, slettes spørsmålene hens
- *   categoryId   restrict: en kategori med spørsmål kan ikke slettes
+ *   userId   cascade: slettes brukeren, slettes spørsmålene hens
  */
 export const questions = sqliteTable(
   "questions",
@@ -16,9 +14,6 @@ export const questions = sqliteTable(
       .$default(() => createId()),
     title: text("title").notNull(),
     content: text("content").notNull(),
-    categoryId: text("category_id")
-      .notNull()
-      .references(() => categories.id, { onDelete: "restrict" }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -26,10 +21,7 @@ export const questions = sqliteTable(
       .notNull()
       .$default(() => new Date()),
   },
-  (table) => [
-    index("idx_questions_user_id").on(table.userId),
-    index("idx_questions_category_id").on(table.categoryId),
-  ],
+  (table) => [index("idx_questions_user_id").on(table.userId)],
 );
 
 export type Question = typeof questions.$inferSelect;

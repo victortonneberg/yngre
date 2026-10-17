@@ -66,7 +66,7 @@ Innlogging er utsatt til vi har lært det. Da lages `src/features/auth/`.
 
 | Vår fil | Følger referansefil |
 | --- | --- |
-| `src/db/schema/question-schema.ts`, `answer-schema.ts`, `category-schema.ts` | `src/db/schema/task-schema.ts` |
+| `src/db/schema/question-schema.ts`, `answer-schema.ts` | `src/db/schema/task-schema.ts` |
 | `src/db/schema/index.ts`, `src/db/relations.ts` (utvides) | samme filer |
 | `src/features/questions/question-{routes,controller,service,repository,mapper,schema,api}.ts` | tilsvarende `task-*.ts` |
 | `src/features/questions/actions.ts` | `actions.ts` |
@@ -75,7 +75,6 @@ Innlogging er utsatt til vi har lært det. Da lages `src/features/auth/`.
 | `src/features/questions/pages/QuestionsPage.tsx`, `QuestionPage.tsx` | `pages/TasksPage.tsx` |
 | `src/features/questions/components/QuestionList.tsx`, `QuestionItem.tsx`, `QuestionFilter.tsx`, `CreateQuestionForm.tsx` | `components/Task*.tsx`, `CreateTaskForm.tsx` |
 | `src/features/answers/answer-{routes,controller,service,repository,mapper,schema}.ts` | tilsvarende `task-*.ts` |
-| `src/features/categories/category-{routes,controller,service,repository,mapper,schema}.ts` | tilsvarende `task-*.ts` |
 | `__tests__/question-mapper.test.ts`, `question-service.test.ts`, `QuestionFilter.test.tsx` | `task-mapper.test.ts`, `task-service.test.ts`, `TaskFilter.test.tsx` |
 | `src/test/cloudflare-workers.ts` + alias i `vitest.config.ts` | samme filer |
 
