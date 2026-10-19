@@ -3,8 +3,7 @@ export const CONTENT_MAX_LENGTH = 5000;
 type QuestionField = "title" | "content";
 
 type QuestionValidation =
-  | { ok: true }
-  | { ok: false; field: QuestionField; error: string };
+  { ok: true } | { ok: false; field: QuestionField; error: string };
 
 // Sjekker bare feltene som er med, så den virker for både opprett og endre.
 export function validateQuestion(question: {

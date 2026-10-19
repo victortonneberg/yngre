@@ -3,6 +3,7 @@ import { render, route } from "rwsdk/router";
 import { Document } from "@/app/Document";
 import { setCommonHeaders } from "@/app/headers";
 import { Home } from "@/app/pages/Home";
+import { questionRoutes } from "@/features/questions/question-routes";
 
 /**
  * Alt som ligger på `ctx` for én forespørsel.
@@ -21,6 +22,8 @@ const app = defineApp([
   route("/api/status", () =>
     Response.json({ status: "ok", version: "0.1.0" })
   ),
+
+  ...questionRoutes,
 
   // Sider. render(Document, [...]) pakker dem i et helt HTML-dokument.
   render(Document, [route("/", Home)]),

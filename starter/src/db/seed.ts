@@ -16,13 +16,25 @@ export const seedData = async (env: Env) => {
   await db.delete(questions);
   await db.delete(users);
 
+  // Faste id-er for brukerne, så kode som peker på dem (f.eks. før innlogging
+  // er på plass) alltid treffer riktig bruker, uansett hvor mange ganger vi seeder.
   // Foreldrene må inn før barna: fremmednøkkelen krever at raden finnes.
   // Databasen nekter hvis dere tar rekkefølgen feil, og det er en god ting.
   const [user, admin] = await db
     .insert(users)
     .values([
-      { name: "Test Testesen", email: "test@example.com", role: "user" },
-      { name: "Admin Adminsen", email: "admin@example.com", role: "admin" },
+      {
+        id: 1,
+        name: "Test Testesen",
+        email: "test@example.com",
+        role: "user",
+      },
+      {
+        id: 2,
+        name: "Admin Adminsen",
+        email: "admin@example.com",
+        role: "admin",
+      },
     ])
     .returning();
 
