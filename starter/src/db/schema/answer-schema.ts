@@ -4,11 +4,11 @@ import { questions } from "./question-schema";
 import { createId } from "@/lib/id";
 
 /**
- * onDelete:
- *   questionId   cascade: slettes spørsmålet, slettes svarene
- *   adminId      restrict: en admin som har svart kan ikke slettes
- * At adminId faktisk er en admin sjekkes i answer-service, ikke her.
+Hvert spørsmål kan ha ett svar fordi questionId er unik.
+Når spørsmålet slettes, slettes svaret automatisk. Adminen kan ikke slettes.
+At adminId tilhører en admin, kontrolleres i answer-service.
  */
+
 export const answers = sqliteTable(
   "answers",
   {
@@ -17,6 +17,7 @@ export const answers = sqliteTable(
       .$default(() => createId()),
     questionId: text("question_id")
       .notNull()
+      .unique()
       .references(() => questions.id, { onDelete: "cascade" }),
     adminId: integer("admin_id")
       .notNull()
@@ -26,10 +27,7 @@ export const answers = sqliteTable(
       .notNull()
       .$default(() => new Date()),
   },
-  (table) => [
-    index("idx_answers_question_id").on(table.questionId),
-    index("idx_answers_admin_id").on(table.adminId),
-  ],
+  (table) => [index("idx_answers_admin_id").on(table.adminId)],
 );
 
 export type Answer = typeof answers.$inferSelect;
