@@ -3,6 +3,7 @@ import { render, route } from "rwsdk/router";
 import { Document } from "@/app/Document";
 import { setCommonHeaders } from "@/app/headers";
 import { Home } from "@/app/pages/Home";
+import { answerRoutes } from "@/features/answers/answer-routes";
 import { questionRoutes } from "@/features/questions/question-routes";
 
 /**
@@ -24,6 +25,7 @@ const app = defineApp([
   ),
 
   ...questionRoutes,
+  ...answerRoutes,
 
   // Sider. render(Document, [...]) pakker dem i et helt HTML-dokument.
   render(Document, [route("/", Home)]),
