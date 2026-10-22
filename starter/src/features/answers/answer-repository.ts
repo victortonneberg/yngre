@@ -14,7 +14,6 @@ import type { Fail, Result } from "@/lib/shared/result";
 export interface AnswerRepository {
   // Hvert spørsmål har max ett svar. null = ikke besvart ennå.
   findByQuestion(questionId: string): Promise<Result<Answer | null>>;
-  findById(id: string): Promise<Result<Answer | null>>;
   create(data: CreateAnswer): Promise<Result<Answer>>;
   update(id: string, data: UpdateAnswer): Promise<Result<Answer | null>>;
   remove(id: string): Promise<{ ok: true } | Fail>;
@@ -41,18 +40,6 @@ export function createAnswerRepository(_db: DB): AnswerRepository {
           .select()
           .from(answers)
           .where(eq(answers.questionId, questionId))
-          .get();
-        return { ok: true, data: answer ?? null };
-      } catch (error) {
-        return fail(error);
-      }
-    },
-    async findById(id) {
-      try {
-        const answer = await _db
-          .select()
-          .from(answers)
-          .where(eq(answers.id, id))
           .get();
         return { ok: true, data: answer ?? null };
       } catch (error) {
