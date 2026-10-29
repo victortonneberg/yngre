@@ -17,8 +17,8 @@ export function createQuestionController(
 ): QuestionController {
   return {
     // GET /api/v1/questions
-    async list() {
-      const result = await _service.list();
+    async list({ ctx }: RequestInfo) {
+      const result = await _service.list(ctx.user);
 
       // ok: true gir 200, ellers 500 fra servicen.
       return result.ok
@@ -26,8 +26,8 @@ export function createQuestionController(
         : Response.json(result, { status: Number(result.error.code) });
     },
     // GET /api/v1/questions/:id
-    async find({ params }: RequestInfo) {
-      const result = await _service.findById(params.id);
+    async find({ params, ctx }: RequestInfo) {
+      const result = await _service.findById(params.id, ctx.user);
 
       // ok: true gir 200, ellers 404 (finnes ikke) eller 500.
       return result.ok

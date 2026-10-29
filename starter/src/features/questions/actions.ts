@@ -41,3 +41,31 @@ export async function createQuestionAction(
     ? { ok: true, data: result.data }
     : { ok: false, error: result.error, values };
 }
+
+// Slett-skjemaet får bare tilbake en feil. Går det bra, svarer vi med en
+// omdirigering til forsiden i stedet: siden for spørsmålet finnes ikke lenger,
+// og en omdirigering virker selv om skjemaet er borte når svaret kommer.
+export type DeleteQuestionResult = {
+  ok: false;
+  error: {
+    code: string;
+    message: string;
+    fieldErrors: Record<string, string[]>;
+  };
+};
+
+// Servicen sjekker både innlogging (401) og at spørsmålet er ditt (403).
+export async function deleteQuestionAction(
+  formData: FormData,
+): Promise<DeleteQuestionResult | Response> {
+  // <input type="hidden" name="id" />
+  const id = String(formData.get("id") ?? "");
+
+  const { ctx } = requestInfo;
+
+  const result = await service.remove(ctx.user, id);
+
+  if (!result.ok) return { ok: false, error: result.error };
+
+  return new Response(null, { status: 303, headers: { Location: "/" } });
+}

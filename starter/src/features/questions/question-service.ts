@@ -12,8 +12,9 @@ import { createQuestionSchema, updateQuestionSchema } from "./question-schema";
 import { validateQuestion } from "./utils/validate-question";
 
 export interface QuestionService {
-  list(): Promise<Result<QuestionDTO[]>>;
-  findById(id: string): Promise<Result<QuestionDTO>>;
+  // Lesing er åpen for alle. Brukeren er valgfri og brukes bare til isOwner.
+  list(user?: SessionUser | null): Promise<Result<QuestionDTO[]>>;
+  findById(id: string, user?: SessionUser | null): Promise<Result<QuestionDTO>>;
   create(
     user: SessionUser | null,
     input: unknown,
@@ -30,17 +31,17 @@ export function createQuestionService(
   _repository: QuestionRepository,
 ): QuestionService {
   return {
-    async list() {
+    async list(user = null) {
       const result = await _repository.findMany();
 
       if (!result.ok) return result;
 
       return {
         ok: true,
-        data: result.data.map(toQuestionDTO),
+        data: result.data.map((question) => toQuestionDTO(question, user)),
       };
     },
-    async findById(id) {
+    async findById(id, user = null) {
       const result = await _repository.findById(id);
 
       if (!result.ok) return result;
@@ -58,7 +59,7 @@ export function createQuestionService(
 
       return {
         ok: true,
-        data: toQuestionDTO(result.data),
+        data: toQuestionDTO(result.data, user),
       };
     },
     async create(user, input) {

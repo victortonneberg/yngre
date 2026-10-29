@@ -1,11 +1,12 @@
 import type { RequestInfo } from "rwsdk/worker";
 import { service as answerService } from "@/features/answers/answer-service";
 import { service as questionService } from "../question-service";
+import { DeleteQuestionForm } from "../components/DeleteQuestionForm";
 
 // Én side for ett spørsmål, med svaret under. Server-komponent, så alt hentes
 // fra servicene mens siden rendres. Alle kan se den, innlogget eller ikke.
-export async function QuestionPage({ params, response }: RequestInfo) {
-  const question = await questionService.findById(params.id);
+export async function QuestionPage({ params, response, ctx }: RequestInfo) {
+  const question = await questionService.findById(params.id, ctx.user);
 
   if (!question.ok) {
     // Ukjent id gir en ekte 404, ikke bare en tom side.
@@ -25,7 +26,7 @@ export async function QuestionPage({ params, response }: RequestInfo) {
   // 404 fra answer-servicen betyr bare at spørsmålet ikke er besvart ennå.
   const answer = await answerService.findByQuestion(params.id);
 
-  const { title, content, createdAt } = question.data;
+  const { id, title, content, createdAt, isOwner } = question.data;
 
   return (
     <main>
@@ -58,6 +59,9 @@ export async function QuestionPage({ params, response }: RequestInfo) {
           </p>
         )}
       </section>
+
+      {/* Bare eieren ser slett-knappen. Servicen sjekker det også. */}
+      {isOwner && <DeleteQuestionForm questionId={id} />}
 
       <p>
         <a href="/">Til forsiden</a>
