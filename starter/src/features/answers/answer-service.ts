@@ -3,7 +3,7 @@
 // Brukeren sendes inn utenfra (fra innloggingen), aldri fra klienten.
 
 import z from "zod";
-import type { User } from "@/db/schema";
+import { isAdmin, type SessionUser } from "@/features/auth/auth-types";
 import {
   type QuestionService,
   service as questionService,
@@ -14,22 +14,22 @@ import { type AnswerRepository, repository } from "./answer-repository";
 import { createAnswerSchema } from "./answer-schema";
 import { validateAnswer } from "./utils/validate-answer";
 
-// Vi trenger bare id og rolle for å vite hvem som svarer og om de har lov.
-type Actor = Pick<User, "id" | "role">;
-
 export interface AnswerService {
   findByQuestion(questionId: string): Promise<Result<AnswerDTO>>;
   create(
-    user: Actor,
+    user: SessionUser | null,
     questionId: string,
     input: unknown,
   ): Promise<Result<AnswerDTO>>;
   update(
-    user: Actor,
+    user: SessionUser | null,
     questionId: string,
     input: unknown,
   ): Promise<Result<AnswerDTO>>;
-  remove(user: Actor, questionId: string): Promise<{ ok: true } | Fail>;
+  remove(
+    user: SessionUser | null,
+    questionId: string,
+  ): Promise<{ ok: true } | Fail>;
 }
 
 export function createAnswerService(
@@ -37,8 +37,8 @@ export function createAnswerService(
   _questions: QuestionService,
 ): AnswerService {
   // Bare admin får skrive. Gir null når alt er i orden, ellers feilen.
-  const requireAdmin = (user: Actor): Fail | null => {
-    if (user.role === "admin") return null;
+  const checkAdmin = (user: SessionUser): Fail | null => {
+    if (isAdmin(user)) return null;
 
     return {
       ok: false,
@@ -75,8 +75,21 @@ export function createAnswerService(
       };
     },
     async create(user, questionId, input) {
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
       // Sjekk om bruker er admin
-      const forbidden = requireAdmin(user);
+      const forbidden = checkAdmin(user);
       if (forbidden) return forbidden;
 
       // Sjekker at input har riktig form.
@@ -138,7 +151,20 @@ export function createAnswerService(
       };
     },
     async update(user, questionId, input) {
-      const forbidden = requireAdmin(user);
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
+      const forbidden = checkAdmin(user);
       if (forbidden) return forbidden;
 
       const parsed = createAnswerSchema.safeParse(input);
@@ -183,7 +209,20 @@ export function createAnswerService(
       };
     },
     async remove(user, questionId) {
-      const forbidden = requireAdmin(user);
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
+      const forbidden = checkAdmin(user);
       if (forbidden) return forbidden;
 
       const existing = await _repository.findByQuestion(questionId);
