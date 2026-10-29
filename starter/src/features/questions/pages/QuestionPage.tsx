@@ -1,5 +1,5 @@
 import type { RequestInfo } from "rwsdk/worker";
-import { service as answerService } from "@/features/answers/answer-service";
+import { AnswerSection } from "@/features/answers/components/AnswerSection";
 import { service as questionService } from "../question-service";
 import { DeleteQuestionForm } from "../components/DeleteQuestionForm";
 
@@ -23,9 +23,6 @@ export async function QuestionPage({ params, response, ctx }: RequestInfo) {
     );
   }
 
-  // 404 fra answer-servicen betyr bare at spørsmålet ikke er besvart ennå.
-  const answer = await answerService.findByQuestion(params.id);
-
   const { id, title, content, createdAt, isOwner } = question.data;
 
   return (
@@ -40,25 +37,7 @@ export async function QuestionPage({ params, response, ctx }: RequestInfo) {
         </small>
       </article>
 
-      <section className="answer" aria-labelledby="answer-heading">
-        <h2 id="answer-heading">Svar</h2>
-        {answer.ok ? (
-          <>
-            <p>{answer.data.content}</p>
-            <small className="question__meta">
-              <time dateTime={answer.data.createdAt}>
-                {new Date(answer.data.createdAt).toLocaleDateString("no-NO")}
-              </time>
-            </small>
-          </>
-        ) : answer.error.code === "404" ? (
-          <p>Ikke besvart ennå.</p>
-        ) : (
-          <p role="alert" className="alert">
-            {answer.error.message}
-          </p>
-        )}
-      </section>
+      <AnswerSection questionId={id} user={ctx.user} />
 
       {/* Bare eieren ser slett-knappen. Servicen sjekker det også. */}
       {isOwner && <DeleteQuestionForm questionId={id} />}

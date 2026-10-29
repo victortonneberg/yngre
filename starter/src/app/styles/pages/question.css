@@ -10,3 +10,8 @@
   border-left: 4px solid var(--color-link);
   background: #f6f6f6;
 }
+
+/* Litt luft mellom datoen og slett-knappen. */
+.answer small + form {
+  margin-top: 0.75rem;
+}
