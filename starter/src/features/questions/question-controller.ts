@@ -4,10 +4,6 @@
 import type { RequestInfo } from "rwsdk/worker";
 import { type QuestionService, service } from "./question-service";
 
-// Midlertidig, til innloggingen er på plass: alle spørsmål lages av brukeren
-// fra seed. Når vi har requireUser, hentes denne fra ctx.user i stedet.
-const TODO_USER_ID = 1;
-
 export interface QuestionController {
   list(requestInfo: RequestInfo): Promise<Response>;
   find(requestInfo: RequestInfo): Promise<Response>;
@@ -39,7 +35,7 @@ export function createQuestionController(
         : Response.json(result, { status: Number(result.error.code) });
     },
     // POST /api/v1/questions med JSON, f.eks. { "title": "Hei", "content": "…" }
-    async create({ request }: RequestInfo) {
+    async create({ request, ctx }: RequestInfo) {
       // Body kan være hva som helst, så vi leser den som unknown.
       let body: unknown;
       try {
@@ -58,15 +54,16 @@ export function createQuestionController(
         );
       }
 
-      const result = await _service.create(TODO_USER_ID, body);
+      // Hvem som eier spørsmålet kommer fra ctx.user, aldri fra bodyen.
+      const result = await _service.create(ctx.user, body);
 
-      // ok: true gir 201 (opprettet), ellers 400 eller 500 fra servicen.
+      // ok: true gir 201 (opprettet), ellers 400, 401 eller 500 fra servicen.
       return result.ok
         ? Response.json(result, { status: 201 })
         : Response.json(result, { status: Number(result.error.code) });
     },
     // PATCH /api/v1/questions/:id med JSON, f.eks. { "title": "Ny tittel" }
-    async update({ request, params }: RequestInfo) {
+    async update({ request, params, ctx }: RequestInfo) {
       let body: unknown;
       try {
         body = await request.json();
@@ -84,17 +81,17 @@ export function createQuestionController(
         );
       }
 
-      const result = await _service.update(TODO_USER_ID, params.id, body);
+      const result = await _service.update(ctx.user, params.id, body);
 
       return result.ok
         ? Response.json(result, { status: 200 })
         : Response.json(result, { status: Number(result.error.code) });
     },
     // DELETE /api/v1/questions/:id
-    async remove({ params }: RequestInfo) {
-      const result = await _service.remove(TODO_USER_ID, params.id);
+    async remove({ params, ctx }: RequestInfo) {
+      const result = await _service.remove(ctx.user, params.id);
 
-      // ok: true gir 204 (ingen body), ellers 403, 404 eller 500.
+      // ok: true gir 204 (ingen body), ellers 401, 403, 404 eller 500.
       return result.ok
         ? new Response(null, { status: 204 })
         : Response.json(result, { status: Number(result.error.code) });

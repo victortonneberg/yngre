@@ -1,8 +1,10 @@
 // Her bor reglene for spørsmål: vi validerer, sjekker hvem som eier spørsmålet,
 // snakker med repository og gjør svaret om til en DTO. Servicen vet ikke noe
-// om HTTP eller Drizzle. userId sendes inn utenfra, aldri fra klienten.
+// om HTTP eller Drizzle. Brukeren sendes inn utenfra (ctx.user), aldri fra
+// klienten, og servicen sjekker selv at du er innlogget.
 
 import z from "zod";
+import type { SessionUser } from "@/features/auth/auth-types";
 import type { Fail, Result } from "@/lib/shared/result";
 import { type QuestionDTO, toQuestionDTO } from "./question-mapper";
 import { type QuestionRepository, repository } from "./question-repository";
@@ -12,13 +14,16 @@ import { validateQuestion } from "./utils/validate-question";
 export interface QuestionService {
   list(): Promise<Result<QuestionDTO[]>>;
   findById(id: string): Promise<Result<QuestionDTO>>;
-  create(userId: number, input: unknown): Promise<Result<QuestionDTO>>;
+  create(
+    user: SessionUser | null,
+    input: unknown,
+  ): Promise<Result<QuestionDTO>>;
   update(
-    userId: number,
+    user: SessionUser | null,
     id: string,
     input: unknown,
   ): Promise<Result<QuestionDTO>>;
-  remove(userId: number, id: string): Promise<{ ok: true } | Fail>;
+  remove(user: SessionUser | null, id: string): Promise<{ ok: true } | Fail>;
 }
 
 export function createQuestionService(
@@ -56,7 +61,20 @@ export function createQuestionService(
         data: toQuestionDTO(result.data),
       };
     },
-    async create(userId, input) {
+    async create(user, input) {
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
       // Først sjekker vi at input har riktig form. Zod fjerner ukjente felt.
       const parsed = createQuestionSchema.safeParse(input);
       if (!parsed.success)
@@ -84,7 +102,10 @@ export function createQuestionService(
 
       // Til slutt lagrer vi. userId setter vi selv, så ingen kan late som de er
       // en annen bruker.
-      const result = await _repository.create({ ...parsed.data, userId });
+      const result = await _repository.create({
+        ...parsed.data,
+        userId: user.id,
+      });
       if (!result.ok) return result;
 
       return {
@@ -92,7 +113,20 @@ export function createQuestionService(
         data: toQuestionDTO(result.data),
       };
     },
-    async update(userId, id, input) {
+    async update(user, id, input) {
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
       // Alle felt er valgfrie, så det holder å sende med bare tittelen.
       const parsed = updateQuestionSchema.safeParse(input);
       if (!parsed.success)
@@ -145,7 +179,7 @@ export function createQuestionService(
         };
       }
 
-      if (existing.data.userId !== userId) {
+      if (existing.data.userId !== user.id) {
         return {
           ok: false,
           error: {
@@ -177,7 +211,20 @@ export function createQuestionService(
         data: toQuestionDTO(result.data),
       };
     },
-    async remove(userId, id) {
+    async remove(user, id) {
+      // Du må være innlogget. Server actions går utenom vaktene på rutene, så
+      // vi sjekker det her også.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
       const existing = await _repository.findById(id);
       if (!existing.ok) return existing;
 
@@ -192,7 +239,7 @@ export function createQuestionService(
         };
       }
 
-      if (existing.data.userId !== userId) {
+      if (existing.data.userId !== user.id) {
         return {
           ok: false,
           error: {
