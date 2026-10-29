@@ -22,3 +22,8 @@ main {
 .site-nav__user {
   margin-left: auto;
 }
+
+/* Luft mellom seksjonene på en side. */
+main > section {
+  margin-top: 2rem;
+}
