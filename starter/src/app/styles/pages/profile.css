@@ -1,0 +1,15 @@
+/* Profilsiden: navn, e-post og rolle som en beskrivelsesliste. */
+
+.details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1.5rem;
+}
+
+.details dt {
+  font-weight: 600;
+}
+
+.details dd {
+  margin: 0;
+}

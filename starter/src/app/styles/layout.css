@@ -1,0 +1,24 @@
+/* Sidens oppsett: samme bredde på header og innhold, sentrert. */
+
+.site-header,
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* margin-left: auto skyver innloggingsinfoen og knappene til høyre. */
+.site-nav__user {
+  margin-left: auto;
+}

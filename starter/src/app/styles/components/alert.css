@@ -1,0 +1,5 @@
+/* Feilmelding */
+
+.alert {
+  color: var(--color-error);
+}

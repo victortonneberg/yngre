@@ -9,41 +9,27 @@ export async function LoginPage() {
   });
 
   return (
-    <main className="mx-auto max-w-md p-8 font-sans">
-      <h1 className="text-3xl font-bold">Logg inn</h1>
-      <p className="mt-2 text-slate-600">
-        Jukseinnlogging. Velg hvem du er, uten passord.
-      </p>
+    <main>
+      <h1>Logg inn</h1>
+      <p>Jukseinnlogging. Velg hvem du er, uten passord.</p>
 
       {users.length === 0 ? (
-        <p className="mt-6 text-red-600" role="alert">
+        <p role="alert" className="alert">
           Ingen brukere i databasen. Kjør <code>pnpm seed</code>.
         </p>
       ) : (
-        <form
-          method="post"
-          action="/login"
-          className="mt-6 flex flex-col gap-6"
-        >
-          <label className="flex flex-col gap-1 text-sm font-medium">
-            Bruker
-            {/* `name` er nøkkelen i skjemadataene, `value` er verdien. */}
-            <select
-              name="userId"
-              className="rounded-md border border-slate-300 px-3 py-2 font-normal"
-            >
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {`${user.name} (${user.role})`}
-                </option>
-              ))}
-            </select>
-          </label>
+        <form method="post" action="/login" className="form">
+          <label htmlFor="userId">Bruker</label>
+          {/* `name` er nøkkelen i skjemadataene, `value` er verdien. */}
+          <select id="userId" name="userId">
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {`${user.name} (${user.role})`}
+              </option>
+            ))}
+          </select>
 
-          <button
-            type="submit"
-            className="self-start rounded-md bg-slate-900 px-4 py-2 text-white hover:bg-slate-700"
-          >
+          <button type="submit" className="button">
             Logg inn
           </button>
         </form>

@@ -1,2 +1,16 @@
-/* src/app/styles.css */
-@import "tailwindcss";
+/*
+ * Samlefil for stilene. Hver fil har ett ansvar:
+ *   base         nullstilling og standardutseende på HTML-elementene
+ *   layout       sidens oppsett: header, navigasjon og innholdsbredde
+ *   components/  deler som brukes på flere sider: knapp, skjema, feilmelding
+ *   pages/       stiler som bare hører til én side
+ */
+@import "./styles/base.css";
+@import "./styles/layout.css";
+
+@import "./styles/components/button.css";
+@import "./styles/components/form.css";
+@import "./styles/components/alert.css";
+
+@import "./styles/pages/questions.css";
+@import "./styles/pages/profile.css";

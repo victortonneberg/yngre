@@ -2,12 +2,12 @@ import { defineApp } from "rwsdk/worker";
 import { layout, render, route } from "rwsdk/router";
 import { Document } from "@/app/Document";
 import { setCommonHeaders } from "@/app/headers";
-import { Home } from "@/app/pages/Home";
 import { AppLayout } from "@/components/Layout";
 import type { SessionUser } from "@/features/auth/auth-types";
 import { setUser } from "@/features/auth/middleware";
 import { authRoutes } from "@/features/auth/auth-routes";
 import { answerRoutes } from "@/features/answers/answer-routes";
+import { QuestionsPage } from "@/features/questions/pages/QuestionsPage";
 import { questionRoutes } from "@/features/questions/question-routes";
 
 /**
@@ -32,7 +32,9 @@ const app = defineApp([
   ...answerRoutes,
 
   // Sider. render(Document, [...]) pakker dem i et helt HTML-dokument.
-  render(Document, [layout(AppLayout, [route("/", Home), ...authRoutes])]),
+  render(Document, [
+    layout(AppLayout, [route("/", QuestionsPage), ...authRoutes]),
+  ]),
 ]);
 
 export default { fetch: app.fetch };

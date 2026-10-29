@@ -32,6 +32,10 @@ eldre. Alle versjoner er låst uten `^` og `~`, med vilje.
 
 ## Regler i dette prosjektet
 
+- **Ingen Tailwind i vår kode.** Pakken ligger igjen fra starteren, men vi bruker
+  vanlig CSS: `src/app/styles.css` samler filene i `src/app/styles/` (`base`,
+  `layout`, `components/` for delte deler og `pages/` for én side hver).
+  Semantisk HTML, og klassenavn som `blokk__element`.
 - `"use client"` bare der det faktisk er state eller hendelser, og alltid på
   **linje 1**. En kommentar over gjør fila stille om til en server-modul.
 - Alt som kommer utenfra valideres med Zod og `safeParse`. Aldri `as` for å

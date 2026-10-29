@@ -8,39 +8,25 @@ export function AppLayout({ children }: LayoutProps) {
 
   return (
     <AuthProvider user={user}>
-      <header className="border-b border-slate-200 font-sans text-sm">
-        <nav className="mx-auto flex max-w-2xl items-center gap-4 px-8 py-3">
-          <a className="underline" href="/">
-            Forside
-          </a>
+      <header className="site-header">
+        <nav className="site-nav">
+          <a href="/">Forside</a>
 
-          <span className="ml-auto" data-testid="logged-in-as">
+          <span className="site-nav__user" data-testid="logged-in-as">
             {user ? `${user.name} (${user.role})` : "Ikke innlogget"}
           </span>
 
-          {user ? (
-            <a className="underline" href="/profile">
-              Profil
-            </a>
-          ) : null}
+          {user ? <a href="/profile">Profil</a> : null}
 
           {user ? (
             // Logg ut endrer tilstand, så det er et skjema med POST, ikke en lenke.
             <form method="post" action="/logout">
-              <button
-                type="submit"
-                className="rounded border border-slate-300 px-2 py-1"
-              >
+              <button type="submit" className="button">
                 Logg ut
               </button>
             </form>
           ) : (
-            <a
-              className="rounded border border-slate-300 px-2 py-1"
-              href="/login"
-            >
-              Logg inn
-            </a>
+            <a href="/login">Logg inn</a>
           )}
         </nav>
       </header>
