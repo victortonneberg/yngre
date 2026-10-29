@@ -7,6 +7,7 @@ import type { SessionUser } from "@/features/auth/auth-types";
 import { setUser } from "@/features/auth/middleware";
 import { authRoutes } from "@/features/auth/auth-routes";
 import { answerRoutes } from "@/features/answers/answer-routes";
+import { QuestionPage } from "@/features/questions/pages/QuestionPage";
 import { QuestionsPage } from "@/features/questions/pages/QuestionsPage";
 import { questionRoutes } from "@/features/questions/question-routes";
 
@@ -33,7 +34,11 @@ const app = defineApp([
 
   // Sider. render(Document, [...]) pakker dem i et helt HTML-dokument.
   render(Document, [
-    layout(AppLayout, [route("/", QuestionsPage), ...authRoutes]),
+    layout(AppLayout, [
+      route("/", QuestionsPage),
+      route("/questions/:id", QuestionPage),
+      ...authRoutes,
+    ]),
   ]),
 ]);
 
