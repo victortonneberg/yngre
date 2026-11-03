@@ -9,7 +9,6 @@
 :root {
   --color-text: #1a1a1a;
   --color-muted: #666;
-  --color-link: #0b57d0;
   --color-border: #ddd;
   --color-error: #b00020;
 }
@@ -37,7 +36,7 @@ p {
 }
 
 a {
-  color: var(--color-link);
+  color: inherit;
 }
 
 ul {

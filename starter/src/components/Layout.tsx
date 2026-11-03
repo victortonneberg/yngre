@@ -34,6 +34,10 @@ export function AppLayout({ children }: LayoutProps) {
       </header>
 
       {children}
+
+      <footer className="site-footer">
+        <p>© 2026 yngre</p>
+      </footer>
     </AuthProvider>
   );
 }
