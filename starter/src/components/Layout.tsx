@@ -1,5 +1,6 @@
 import type { LayoutProps } from "rwsdk/router";
 import { requestInfo } from "rwsdk/worker";
+import { isAdmin } from "@/features/auth/auth-types";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 
 export function AppLayout({ children }: LayoutProps) {
@@ -11,6 +12,7 @@ export function AppLayout({ children }: LayoutProps) {
       <header className="site-header">
         <nav className="site-nav">
           <a href="/">Forside</a>
+          {isAdmin(user) && <a href="/admin">Ubesvarte spørsmål</a>}
 
           <span className="site-nav__user" data-testid="logged-in-as">
             {user ? `${user.name} (${user.role})` : "Ikke innlogget"}

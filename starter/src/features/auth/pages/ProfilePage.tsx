@@ -36,7 +36,7 @@ export function ProfilePage() {
       <p>
         {isAdmin(user)
           ? "Som admin kan du svare på spørsmål."
-          : "Du kan stille spørsmål og redigere dine egne."}
+          : "Du kan stille spørsmål."}
       </p>
     </main>
   );

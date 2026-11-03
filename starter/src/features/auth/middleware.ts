@@ -79,3 +79,16 @@ export const requireUserPage: RouteMiddleware = ({ ctx }) => {
     return new Response(null, { status: 302, headers: { Location: "/login" } });
   }
 };
+
+// Admin-sider: ikke innlogget sendes til /login, og andre enn admin får 403.
+export const requireAdminPage: RouteMiddleware = ({ ctx }) => {
+  if (!ctx.user) {
+    return new Response(null, { status: 302, headers: { Location: "/login" } });
+  }
+
+  if (!isAdmin(ctx.user)) {
+    return new Response("Bare admin har tilgang til denne siden", {
+      status: 403,
+    });
+  }
+};

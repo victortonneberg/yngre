@@ -1,9 +1,10 @@
 // Eneste laget som snakker med databasen. Feil her blir { ok: false } med kode
 // "500", og "fant ikke" er { ok: true, data: null }, ikke en feil.
 
-import { eq } from "drizzle-orm";
+import { desc, eq, isNull } from "drizzle-orm";
 import { type DB, db } from "@/db";
 import {
+  answers,
   questions,
   type CreateQuestion,
   type Question,
@@ -14,6 +15,8 @@ import type { Fail, Result } from "@/lib/shared/result";
 export interface QuestionRepository {
   // Nyeste først.
   findMany(): Promise<Result<Question[]>>;
+  // Spørsmål som ikke har noe svar ennå, nyeste først.
+  findManyUnanswered(): Promise<Result<Question[]>>;
   // null = ingen spørsmål med denne id-en
   findById(id: string): Promise<Result<Question | null>>;
   create(data: CreateQuestion): Promise<Result<Question>>;
@@ -42,6 +45,19 @@ export function createQuestionRepository(_db: DB): QuestionRepository {
           orderBy: { createdAt: "desc" },
         });
         return { ok: true, data: rows };
+      } catch (error) {
+        return fail(error);
+      }
+    },
+    async findManyUnanswered() {
+      try {
+        const rows = await _db
+          .select({ question: questions })
+          .from(questions)
+          .leftJoin(answers, eq(answers.questionId, questions.id))
+          .where(isNull(answers.id))
+          .orderBy(desc(questions.createdAt));
+        return { ok: true, data: rows.map((row) => row.question) };
       } catch (error) {
         return fail(error);
       }

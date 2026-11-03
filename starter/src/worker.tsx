@@ -4,7 +4,8 @@ import { Document } from "@/app/Document";
 import { setCommonHeaders } from "@/app/headers";
 import { AppLayout } from "@/components/Layout";
 import type { SessionUser } from "@/features/auth/auth-types";
-import { setUser } from "@/features/auth/middleware";
+import { requireAdminPage, setUser } from "@/features/auth/middleware";
+import { AdminPage } from "@/features/answers/pages/AdminPage";
 import { authRoutes } from "@/features/auth/auth-routes";
 import { answerRoutes } from "@/features/answers/answer-routes";
 import { QuestionPage } from "@/features/questions/pages/QuestionPage";
@@ -32,11 +33,11 @@ const app = defineApp([
   ...questionRoutes,
   ...answerRoutes,
 
-  // Sider. render(Document, [...]) pakker dem i et helt HTML-dokument.
   render(Document, [
     layout(AppLayout, [
       route("/", QuestionsPage),
       route("/questions/:id", QuestionPage),
+      route("/admin", [requireAdminPage, AdminPage]),
       ...authRoutes,
     ]),
   ]),

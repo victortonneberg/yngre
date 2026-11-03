@@ -4,7 +4,7 @@
 // klienten, og servicen sjekker selv at du er innlogget.
 
 import z from "zod";
-import type { SessionUser } from "@/features/auth/auth-types";
+import { isAdmin, type SessionUser } from "@/features/auth/auth-types";
 import type { Fail, Result } from "@/lib/shared/result";
 import { type QuestionDTO, toQuestionDTO } from "./question-mapper";
 import { type QuestionRepository, repository } from "./question-repository";
@@ -15,6 +15,8 @@ export interface QuestionService {
   // Lesing er åpen for alle. Brukeren er valgfri og brukes bare til isOwner.
   list(user?: SessionUser | null): Promise<Result<QuestionDTO[]>>;
   findById(id: string, user?: SessionUser | null): Promise<Result<QuestionDTO>>;
+  // Bare admin: spørsmålene som venter på svar.
+  listUnanswered(user: SessionUser | null): Promise<Result<QuestionDTO[]>>;
   create(
     user: SessionUser | null,
     input: unknown,
@@ -33,6 +35,39 @@ export function createQuestionService(
   return {
     async list(user = null) {
       const result = await _repository.findMany();
+
+      if (!result.ok) return result;
+
+      return {
+        ok: true,
+        data: result.data.map((question) => toQuestionDTO(question, user)),
+      };
+    },
+    async listUnanswered(user) {
+      // Servicen sjekker selv, siden en side ikke går via vaktene på rutene.
+      if (!user) {
+        return {
+          ok: false,
+          error: {
+            code: "401",
+            message: "Du må være innlogget",
+            fieldErrors: {},
+          },
+        };
+      }
+
+      if (!isAdmin(user)) {
+        return {
+          ok: false,
+          error: {
+            code: "403",
+            message: "Bare admin kan se ubesvarte spørsmål",
+            fieldErrors: {},
+          },
+        };
+      }
+
+      const result = await _repository.findManyUnanswered();
 
       if (!result.ok) return result;
 
