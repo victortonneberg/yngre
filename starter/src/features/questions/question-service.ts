@@ -146,7 +146,7 @@ export function createQuestionService(
 
       return {
         ok: true,
-        data: toQuestionDTO(result.data),
+        data: toQuestionDTO(result.data, user),
       };
     },
     async update(user, id, input) {
@@ -244,7 +244,7 @@ export function createQuestionService(
 
       return {
         ok: true,
-        data: toQuestionDTO(result.data),
+        data: toQuestionDTO(result.data, user),
       };
     },
     async remove(user, id) {

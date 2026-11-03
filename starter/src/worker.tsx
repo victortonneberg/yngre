@@ -25,7 +25,6 @@ const app = defineApp([
   // Middleware. Kjører for hver forespørsel, i rekkefølgen de står.
   setCommonHeaders(),
   setUser,
-  // Test Niko
   // API-rute. Ligger UTENFOR render(), så svaret er akkurat det handleren
   // returnerer: JSON, uten HTML-skall rundt.
   route("/api/status", () => Response.json({ status: "ok", version: "0.1.0" })),
